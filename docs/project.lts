@@ -1,0 +1,49 @@
+const SIZE_BUFFER = 1 //0: empty, 1: contains one or more items
+
+//------ BUFFER ------//
+BUFFER_T = (createBuffer -> BUFFER[0]),
+BUFFER[i:0..SIZE_BUFFER] = (when(i>0) readFromBuffer -> BUFFER[i]
+			   |when(i>0) removeFromBuffer -> BUFFER[i-1]
+			   |when(i<SIZE_BUFFER) insertIntoBuffer -> BUFFER[i+1]).
+
+//----- INPUT ------//
+TASKINPUT = (xTaskCreate -> doInput -> INPUT),
+INPUT = (takeSample -> insertIntoBuffer -> INPUT).
+
+//------ OUTPUT ------//
+TASKOUTPUT = (xTaskCreate -> doOutput -> OUTPUT),
+OUTPUT = (readSample -> readFromBuffer -> removeFromBuffer -> outputSample -> OUTPUT).
+
+//------ RECOGNIZE ------//
+TASKRECOGNIZE = (xTaskCreate -> doRecognize -> RECOGNIZE),
+RECOGNIZE = (getNewEmptyArray -> copyArrayFromBuffer -> 
+             recognizeBegin -> (true -> BEGINRECOGNIZED
+                               |false -> removeFromBuffer -> RECOGNIZE)),
+BEGINRECOGNIZED = (getNewEmptyArray -> copyArrayFromBuffer ->
+                   recognizeEnd -> (true -> ENDRECOGNIZED
+                                   |false -> BEGINRECOGNIZED
+                                   |timeout -> removeFromBuffer -> RECOGNIZE)),
+ENDRECOGNIZED = (copyBuffer -> removeFromBuffer -> RECOGNIZE).
+
+//------ CANCEL ------//
+TASKCANCEL = (xTaskCreate -> doCancel -> CANCEL),
+CANCEL = (getNewEmptyArray -> copyArrayFromBuffer -> doFFT -> FFT),
+FFT = (kiss_fft -> cancel_interval -> ifft_and_restore -> FFT_RESULT),
+FFT_RESULT = (copyBufferFromArray -> removeFromBuffer -> CANCEL).
+
+//------ PROJECT ------//
+||PROJECT = (in:TASKINPUT || out:TASKOUTPUT || rec:TASKRECOGNIZE || can:TASKCANCEL
+          || qIn:BUFFER_T || qRec:BUFFER_T  || qCan:BUFFER_T)/{
+// --- Buffer: Input to Recognize --- //
+in.insertIntoBuffer/qIn.insertIntoBuffer,
+rec.copyArrayFromBuffer/qIn.readFromBuffer,
+rec.removeFromBuffer/qIn.removeFromBuffer,
+// --- Buffer: Recognize to Cancel --- //
+rec.copyBuffer/qRec.insertIntoBuffer,
+can.copyArrayFromBuffer/qRec.readFromBuffer,
+can.removeFromBuffer/qRec.removeFromBuffer,
+// --- Buffer: Cancel to Output --- //
+can.copyBufferFromArray/qCan.insertIntoBuffer,
+out.readFromBuffer/qCan.readFromBuffer,
+out.removeFromBuffer/qCan.removeFromBuffer
+}.

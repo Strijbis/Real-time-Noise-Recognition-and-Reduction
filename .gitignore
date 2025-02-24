@@ -1,0 +1,7 @@
+*.out
+
+data/out/output.csv
+data/out/output.wav
+data/out/train_short.csv
+
+.vscode/
