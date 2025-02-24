@@ -1,1 +1,1 @@
-# Real-time-Noise-Recognition-and-Reduction
+# Real-time Noise Recognition and Reduction
