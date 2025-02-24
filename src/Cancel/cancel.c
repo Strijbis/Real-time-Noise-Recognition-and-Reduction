@@ -42,6 +42,7 @@ void vTaskCancel(void *pvParameters) {
 }
 
 void doCancel(cancelSettings_t *settings) {
+    /* An empty buffer means no noise was recognized */
     size_t size = settings->inBuffer->used;
     if (size == 0) return;
 
