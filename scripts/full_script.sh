@@ -6,7 +6,7 @@ python3 scripts/wav_to_header_and_csv.py \
          -csvfile data/out/train_short.csv \
          -dataheader src/data/data.h
 
-# Shell has to be in the c folder in order to compile
+# Shell has to be in the src folder in order to compile
 cd src
 
 # Compile the program
@@ -15,7 +15,7 @@ cd src
 # Run the program
 ./a.out
 
-# Return to the scripts folder
+# Return to the main folder
 cd ..
 
 # Create a wav file from the csv file outputted by the program
