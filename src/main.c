@@ -29,7 +29,7 @@ int main(void) {
             doRecognize(&recognizeSettings);
         if (i % cancelSettings.base.ratio == 0) 
             doCancel(&cancelSettings);
-        printf("%zu\n", i);
+        //printf("%zu\n", i);
     }
 
     fclose(fpOutput);
